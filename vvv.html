@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Voice Message with My Photo</title>
+  <style>
+    body {
+      background: #0f1724;
+      color: #fff;
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 20px;
+    }
+    .card {
+      max-width: 420px;
+      margin: auto;
+      background: rgba(255,255,255,0.05);
+      padding: 20px;
+      border-radius: 15px;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    img {
+      width: 100%;
+      border-radius: 15px;
+      margin-bottom: 15px;
+    }
+    button {
+      padding: 12px 18px;
+      font-size: 16px;
+      border-radius: 10px;
+      border: 0;
+      margin: 5px;
+      cursor: pointer;
+    }
+    #startBtn { background: #ff6b81; }
+    #stopBtn { background: #ff4757; }
+    #playBtn { background: #1e90ff; }
+  </style>
+</head>
+<body>
+
+<div class="card">
+  <!-- 🔥 حطّ صورتك هنا (اكتب اسم الصورة اللي عندك) -->
+  <img src="pp.jpg" alt="My Photo">
+
+  <h2>🎙️ My Voice Message</h2>
+
+  <button id="startBtn">Start Recording</button>
+  <button id="stopBtn" disabled>Stop</button>
+  <button id="playBtn" disabled>Play</button>
+
+  <p id="status">Ready</p>
+</div>
+
+<script>
+let recorder, audioFile;
+let chunks = [];
+
+const startBtn = document.getElementById('startBtn');
+const stopBtn  = document.getElementById('stopBtn');
+const playBtn  = document.getElementById('playBtn');
+const status   = document.getElementById('status');
+
+startBtn.onclick = async () => {
+  const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+  recorder = new MediaRecorder(stream);
+
+  recorder.ondataavailable = e => chunks.push(e.data);
+  recorder.onstop = () => {
+    audioFile = new Blob(chunks, { type: "audio/webm" });
+    chunks = [];
+    playBtn.disabled = false;
+  };
+
+  recorder.start();
+  status.innerHTML = "Recording...";
+  startBtn.disabled = true;
+  stopBtn.disabled = false;
+};
+
+stopBtn.onclick = () => {
+  recorder.stop();
+  status.innerHTML = "Recording stopped";
+  startBtn.disabled = false;
+  stopBtn.disabled = true;
+};
+
+playBtn.onclick = () => {
+  const audioURL = URL.createObjectURL(audioFile);
+  const audio = new Audio(audioURL);
+  audio.play();
+};
+</script>
+
+</body>
+</html>
